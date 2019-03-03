@@ -35,6 +35,7 @@ IF(DEFINED DT_FORCE_CXX_COMPILER)
 endif()
 
 include(DefineOptions.cmake)
+include(CompilerChecks.cmake)
 
 # Include GNUInstallDirs, which sets sensible defaults for install directories.
 # See https://cmake.org/cmake/help/v3.0/module/GNUInstallDirs.html for further information.
@@ -85,6 +86,13 @@ if(BUILD_SSE2_CODEPATHS)
     set(BUILD_SSE2_CODEPATHS OFF)
   endif()
 endif()
+
+# Include GNUInstallDirs, which sets sensible defaults for install directories.
+# See https://cmake.org/cmake/help/v3.0/module/GNUInstallDirs.html for further information.
+# These values can be easily overridden if required.
+# Some defaults are set for OpenBSD as well (info and man pages).
+
+include(GNUInstallDirs)
 
 MESSAGE(STATUS "Building SSE2-optimized codepaths: ${BUILD_SSE2_CODEPATHS}")
 
@@ -218,7 +226,6 @@ if(CMAKE_BUILD_TYPE MATCHES "^[Dd][Ee][Bb][Uu][Gg]$" AND SOURCE_PACKAGE)
   message(FATAL_ERROR "ERROR: Debug build type most likely isn't what you want, use RelWithDebInfo instead. If you're absolutely sure that this is what you want then just comment out this line.")
 endif()
 
-include(compiler-warnings)
 include(windows-macros)
 
 # Setting the runtime path works differently on OSX than on Linux or BSD.

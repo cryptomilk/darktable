@@ -2354,7 +2354,7 @@ static int process_nlmeans_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_iop
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_precondition, 4, 4 * sizeof(float), (void *)&aa);
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_precondition, 5, 4 * sizeof(float), (void *)&sigma2);
     err = dt_opencl_enqueue_kernel_2d(devid, gd->kernel_denoiseprofile_precondition, sizes);
-    if(err != CL_SUCCESS) goto error;
+    if(err != CL_SUCCESS) { printf("kernel precondition failed\n"); goto error; }
   }
   else
   {
@@ -2367,13 +2367,14 @@ static int process_nlmeans_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_iop
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_precondition_v2, 6, 4 * sizeof(float), (void *)&bb);
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_precondition_v2, 7, 4 * sizeof(float), (void *)&wb);
     err = dt_opencl_enqueue_kernel_2d(devid, gd->kernel_denoiseprofile_precondition_v2, sizes);
+    if(err != CL_SUCCESS) { printf("kernel precondition_v2 failed\n"); goto error; }
   }
 
   dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_init, 0, sizeof(cl_mem), (void *)&dev_U2);
   dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_init, 1, sizeof(int), (void *)&width);
   dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_init, 2, sizeof(int), (void *)&height);
   err = dt_opencl_enqueue_kernel_2d(devid, gd->kernel_denoiseprofile_init, sizes);
-  if(err != CL_SUCCESS) goto error;
+  if(err != CL_SUCCESS) { printf("kernel init failed\n"); goto error; }
 
   for(int kj_index = -K; kj_index <= 0; kj_index++)
   {
@@ -2396,7 +2397,7 @@ static int process_nlmeans_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_iop
       dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_dist, 3, sizeof(int), (void *)&height);
       dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_dist, 4, 2 * sizeof(int), (void *)&q);
       err = dt_opencl_enqueue_kernel_2d(devid, gd->kernel_denoiseprofile_dist, sizes);
-      if(err != CL_SUCCESS) goto error;
+      if(err != CL_SUCCESS) { printf("kernel dist failed\n"); goto error; }
 
       sizesl[0] = bwidth;
       sizesl[1] = ROUNDUPHT(height);
@@ -2414,7 +2415,7 @@ static int process_nlmeans_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_iop
       dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_horiz, 6, (hblocksize + 2 * P) * sizeof(float),
                                NULL);
       err = dt_opencl_enqueue_kernel_2d_with_local(devid, gd->kernel_denoiseprofile_horiz, sizesl, local);
-      if(err != CL_SUCCESS) goto error;
+      if(err != CL_SUCCESS) { printf("kernel horiz failed\n"); goto error; }
 
       sizesl[0] = ROUNDUPWD(width);
       sizesl[1] = bheight;
@@ -2436,7 +2437,7 @@ static int process_nlmeans_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_iop
                                (void *)&central_pixel_weight);
       dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_vert, 9, sizeof(cl_mem), ((void *)&dev_U4));
       err = dt_opencl_enqueue_kernel_2d_with_local(devid, gd->kernel_denoiseprofile_vert, sizesl, local);
-      if(err != CL_SUCCESS) goto error;
+      if(err != CL_SUCCESS) { printf("kernel vert failed\n"); goto error; }
 
 
       dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_accu, 0, sizeof(cl_mem), (void *)&dev_tmp);
@@ -2446,7 +2447,7 @@ static int process_nlmeans_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_iop
       dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_accu, 4, sizeof(int), (void *)&height);
       dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_accu, 5, 2 * sizeof(int), (void *)&q);
       err = dt_opencl_enqueue_kernel_2d(devid, gd->kernel_denoiseprofile_accu, sizes);
-      if(err != CL_SUCCESS) goto error;
+      if(err != CL_SUCCESS) { printf("kernel accu failed\n"); goto error; }
 
       if(!darktable.opencl->async_pixelpipe || piece->pipe->type == DT_DEV_PIXELPIPE_EXPORT)
         dt_opencl_finish(devid);
@@ -2466,7 +2467,7 @@ static int process_nlmeans_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_iop
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_finish, 5, 4 * sizeof(float), (void *)&aa);
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_finish, 6, 4 * sizeof(float), (void *)&sigma2);
     err = dt_opencl_enqueue_kernel_2d(devid, gd->kernel_denoiseprofile_finish, sizes);
-    if(err != CL_SUCCESS) goto error;
+    if(err != CL_SUCCESS) { printf("kernel finish failed\n"); goto error; }
   }
   else
   {
@@ -2482,7 +2483,7 @@ static int process_nlmeans_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_iop
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_finish_v2, 8, sizeof(float), (void *)&bias);
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_finish_v2, 9, 4 * sizeof(float), (void *)&wb);
     err = dt_opencl_enqueue_kernel_2d(devid, gd->kernel_denoiseprofile_finish_v2, sizes);
-    if(err != CL_SUCCESS) goto error;
+    if(err != CL_SUCCESS) { printf("kernel finish_v2 failed\n"); goto error; }
   }
 
   for(int k = 0; k < NUM_BUCKETS; k++)
@@ -2669,7 +2670,7 @@ static int process_wavelets_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_io
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_precondition, 4, 4 * sizeof(float), (void *)&aa);
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_precondition, 5, 4 * sizeof(float), (void *)&sigma2);
     err = dt_opencl_enqueue_kernel_2d(devid, gd->kernel_denoiseprofile_precondition, sizes);
-    if(err != CL_SUCCESS) goto error;
+    if(err != CL_SUCCESS) { printf("kernel precondition failed\n"); goto error; }
   }
   else
   {
@@ -2682,7 +2683,7 @@ static int process_wavelets_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_io
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_precondition_v2, 6, 4 * sizeof(float), (void *)&bb);
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_precondition_v2, 7, 4 * sizeof(float), (void *)&wb);
     err = dt_opencl_enqueue_kernel_2d(devid, gd->kernel_denoiseprofile_precondition_v2, sizes);
-    if(err != CL_SUCCESS) goto error;
+    if(err != CL_SUCCESS) { printf("kernel precondition_v2 failed\n"); goto error; }
   }
 
   dev_buf1 = dev_out;
@@ -2709,7 +2710,7 @@ static int process_wavelets_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_io
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_decompose, 7, sizeof(cl_mem),
                              (void *)&dev_filter);
     err = dt_opencl_enqueue_kernel_2d(devid, gd->kernel_denoiseprofile_decompose, sizes);
-    if(err != CL_SUCCESS) goto error;
+    if(err != CL_SUCCESS) { printf("kernel decompose failed\n"); goto error; }
 
     // indirectly give gpu some air to breathe (and to do display related stuff)
     dt_iop_nap(darktable.opencl->micro_nap);
@@ -2750,7 +2751,7 @@ static int process_wavelets_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_io
                              flocopt.sizex * flocopt.sizey * 4 * sizeof(float), NULL);
     err = dt_opencl_enqueue_kernel_2d_with_local(devid, gd->kernel_denoiseprofile_reduce_first, lsizes,
                                                  llocal);
-    if(err != CL_SUCCESS) goto error;
+    if(err != CL_SUCCESS) { printf("kernel reduce first failed\n"); goto error; }
 
 
     lsizes[0] = reducesize * slocopt.sizex;
@@ -2766,12 +2767,15 @@ static int process_wavelets_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_io
                              NULL);
     err = dt_opencl_enqueue_kernel_2d_with_local(devid, gd->kernel_denoiseprofile_reduce_second, lsizes,
                                                  llocal);
-    if(err != CL_SUCCESS) goto error;
+    if(err != CL_SUCCESS) { printf("kernel reduce second failed\n"); goto error; }
 
     err = dt_opencl_read_buffer_from_device(devid, (void *)sumsum, dev_r, 0,
                                             (size_t)reducesize * 4 * sizeof(float), CL_TRUE);
     if(err != CL_SUCCESS)
+    {
+      printf("read buffer failed\n");
       goto error;
+    }
 
     for(int k = 0; k < reducesize; k++)
     {
@@ -2840,7 +2844,7 @@ static int process_wavelets_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_io
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_synthesize, 12, sizeof(float),
                              (void *)&boost[3]);
     err = dt_opencl_enqueue_kernel_2d(devid, gd->kernel_denoiseprofile_synthesize, sizes);
-    if(err != CL_SUCCESS) goto error;
+    if(err != CL_SUCCESS) { printf("kernel synthesize failed\n"); goto error; }
 
     // indirectly give gpu some air to breathe (and to do display related stuff)
     dt_iop_nap(darktable.opencl->micro_nap);
@@ -2858,7 +2862,7 @@ static int process_wavelets_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_io
     size_t origin[] = { 0, 0, 0 };
     size_t region[] = { width, height, 1 };
     err = dt_opencl_enqueue_copy_image(devid, dev_buf1, dev_tmp, origin, origin, region);
-    if(err != CL_SUCCESS) goto error;
+    if(err != CL_SUCCESS) { printf("copy failed\n"); goto error; }
   }
 
   if(!d->use_new_vst)
@@ -2870,7 +2874,7 @@ static int process_wavelets_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_io
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_backtransform, 4, 4 * sizeof(float), (void *)&aa);
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_backtransform, 5, 4 * sizeof(float), (void *)&sigma2);
     err = dt_opencl_enqueue_kernel_2d(devid, gd->kernel_denoiseprofile_backtransform, sizes);
-    if(err != CL_SUCCESS) goto error;
+    if(err != CL_SUCCESS) { printf("kernel backtransform failed\n"); goto error; }
   }
   else
   {
@@ -2885,7 +2889,7 @@ static int process_wavelets_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_io
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_backtransform_v2, 7, 4 * sizeof(float), (void *)&bias);
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_backtransform_v2, 8, 4 * sizeof(float), (void *)&wb);
     err = dt_opencl_enqueue_kernel_2d(devid, gd->kernel_denoiseprofile_backtransform_v2, sizes);
-    if(err != CL_SUCCESS) goto error;
+    if(err != CL_SUCCESS) { printf("kernel backtransform_v2 failed\n"); goto error; }
   }
 
   if(!darktable.opencl->async_pixelpipe || piece->pipe->type == DT_DEV_PIXELPIPE_EXPORT)

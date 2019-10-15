@@ -1949,9 +1949,22 @@ int dt_opencl_set_kernel_arg(const int dev, const int kernel, const int num, con
                              const void *arg)
 {
   dt_opencl_t *cl = darktable.opencl;
-  if(!cl->inited || dev < 0) return -1;
-  if(kernel < 0 || kernel >= DT_OPENCL_MAX_KERNELS) return -1;
-  return (cl->dlocl->symbols->dt_clSetKernelArg)(cl->dev[dev].kernel[kernel], num, size, arg);
+  int rc;
+printf("%s:%u\n", __FILE__, __LINE__);
+  if(!cl->inited || dev < 0) {
+printf("%s:%u\n", __FILE__, __LINE__);
+      return -1;
+  }
+printf("%s:%u\n", __FILE__, __LINE__);
+  if(kernel < 0 || kernel >= DT_OPENCL_MAX_KERNELS) {
+printf("%s:%u\n", __FILE__, __LINE__);
+      return -1;
+  }
+  rc = (cl->dlocl->symbols->dt_clSetKernelArg)(cl->dev[dev].kernel[kernel], num, size, arg);
+
+printf("%s:%u\n", __FILE__, __LINE__);
+printf("rc=%d\n", rc);
+  return rc;
 }
 
 int dt_opencl_enqueue_kernel_2d(const int dev, const int kernel, const size_t *sizes)

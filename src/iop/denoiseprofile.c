@@ -2909,15 +2909,25 @@ static int process_wavelets_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_io
   else
   {
     const float bias = d->bias - 0.5 * logf(scale);
+printf("%s:%u\n", __FILE__, __LINE__);
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_backtransform_v2, 0, sizeof(cl_mem), (void *)&dev_tmp);
+printf("%s:%u\n", __FILE__, __LINE__);
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_backtransform_v2, 1, sizeof(cl_mem), (void *)&dev_out);
+printf("%s:%u\n", __FILE__, __LINE__);
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_backtransform_v2, 2, sizeof(int), (void *)&width);
+printf("%s:%u\n", __FILE__, __LINE__);
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_backtransform_v2, 3, sizeof(int), (void *)&height);
+printf("%s:%u\n", __FILE__, __LINE__);
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_backtransform_v2, 4, 4 * sizeof(float), (void *)&aa);
+printf("%s:%u\n", __FILE__, __LINE__);
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_backtransform_v2, 5, 4 * sizeof(float), (void *)&p);
+printf("%s:%u\n", __FILE__, __LINE__);
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_backtransform_v2, 6, 4 * sizeof(float), (void *)&bb);
+printf("%s:%u\n", __FILE__, __LINE__);
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_backtransform_v2, 7, 4 * sizeof(float), (void *)&bias);
+printf("%s:%u\n", __FILE__, __LINE__);
     dt_opencl_set_kernel_arg(devid, gd->kernel_denoiseprofile_backtransform_v2, 8, 4 * sizeof(float), (void *)&wb);
+printf("%s:%u\n", __FILE__, __LINE__);
     err = dt_opencl_enqueue_kernel_2d(devid, gd->kernel_denoiseprofile_backtransform_v2, sizes);
     if(err != CL_SUCCESS) { printf("kernel backtransform_v2 failed\n"); goto error; }
   }

@@ -2567,7 +2567,10 @@ static int process_wavelets_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_io
                                   .sizex = 1u << 4, .sizey = 1u << 4 };
 
   if(!dt_opencl_local_buffer_opt(devid, gd->kernel_denoiseprofile_reduce_first, &flocopt))
+  {
+    printf("local buffer opt reduce first failed\n");
     goto error;
+  }
 
   const size_t bwidth = ROUNDUP(width, flocopt.sizex);
   const size_t bheight = ROUNDUP(height, flocopt.sizey);
@@ -2580,21 +2583,40 @@ static int process_wavelets_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_io
                                   .sizex = 1u << 16, .sizey = 1 };
 
   if(!dt_opencl_local_buffer_opt(devid, gd->kernel_denoiseprofile_reduce_first, &slocopt))
+  {
+    printf("local buffer opt reduce first 2 failed\n");
     goto error;
+  }
 
   const int reducesize = MIN(REDUCESIZE, ROUNDUP(bufsize, slocopt.sizex) / slocopt.sizex);
 
   dev_m = dt_opencl_alloc_device_buffer(devid, (size_t)bufsize * 4 * sizeof(float));
-  if(dev_m == NULL) goto error;
+  if(dev_m == NULL)
+  {
+    printf("dt alloc device buffer failed: dev_m\n");
+    goto error;
+  }
 
   dev_r = dt_opencl_alloc_device_buffer(devid, (size_t)reducesize * 4 * sizeof(float));
-  if(dev_r == NULL) goto error;
+  if(dev_r == NULL)
+  {
+    printf("dt alloc device buffer failed: dev_m\n");
+    goto error;
+  }
 
   sumsum = dt_alloc_align(64, (size_t)reducesize * 4 * sizeof(float));
-  if(sumsum == NULL) goto error;
+  if(sumsum == NULL)
+  {
+    printf("dt alloc allign failed to sumsum\n");
+    goto error;
+  }
 
   dev_tmp = dt_opencl_alloc_device(devid, width, height, 4 * sizeof(float));
-  if(dev_tmp == NULL) goto error;
+  if(dev_tmp == NULL)
+  {
+    printf("dt alloc allign failed to devtmp\n");
+    goto error;
+  }
 
   float m[] = { 0.0625f, 0.25f, 0.375f, 0.25f, 0.0625f }; // 1/16, 4/16, 6/16, 4/16, 1/16
   float mm[5][5];
@@ -2602,12 +2624,20 @@ static int process_wavelets_cl(struct dt_iop_module_t *self, dt_dev_pixelpipe_io
     for(int i = 0; i < 5; i++) mm[j][i] = m[i] * m[j];
 
   dev_filter = dt_opencl_copy_host_to_device_constant(devid, sizeof(float) * 25, mm);
-  if(dev_filter == NULL) goto error;
+  if(dev_filter == NULL)
+  {
+    printf("copy host to device constant failed\n");
+    goto error;
+  }
 
   for(int k = 0; k < max_scale; k++)
   {
     dev_detail[k] = dt_opencl_alloc_device(devid, width, height, 4 * sizeof(float));
-    if(dev_detail[k] == NULL) goto error;
+    if(dev_detail[k] == NULL)
+    {
+      printf("dt alloc device failed for scale: %d\n", k);
+      goto error;
+    }
   }
 
   const float wb_mean = (piece->pipe->dsc.temperature.coeffs[0] + piece->pipe->dsc.temperature.coeffs[1]

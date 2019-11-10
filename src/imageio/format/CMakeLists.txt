@@ -16,6 +16,11 @@ add_library(ppm MODULE "ppm.c")
 add_library(pfm MODULE "pfm.c")
 add_library(tiff MODULE "tiff.c")
 
+if(LIBHEIF_FOUND)
+        list(APPEND MODULES "heif")
+        add_library(heif MODULE "heif.c")
+endif(LIBHEIF_FOUND)
+
 if(WEBP_FOUND)
         list(APPEND MODULES "webp")
         add_library(webp MODULE "webp.c")

@@ -81,15 +81,13 @@ int write_image(struct dt_imageio_module_data_t *data, const char *filename, con
   struct heif_context      *context = heif_context_alloc ();
   struct heif_encoder      *encoder = NULL;
   struct heif_image_handle *handle  = NULL;
-  struct heif_writer        writer;
   struct heif_error         err;
 
   gint                      stride = 0;
   guint8                   *plane_data;
   gboolean                  has_alpha = 0;
 
-  const int width = p->global.width, height = p->global.height;
-  const uint8_t *in_data = (const uint8_t *)in;
+  const uint32_t width = p->global.width, height = p->global.height;
 
   err = heif_image_create (width, height,
                            heif_colorspace_RGB,
@@ -102,18 +100,21 @@ int write_image(struct dt_imageio_module_data_t *data, const char *filename, con
                         width, height, has_alpha ? 32 : 24);
   plane_data = heif_image_get_plane (image, heif_channel_interleaved, &stride);
 
+#if 0
   size_t channel_size = sizeof(uint8_t);
   if (p->bpp > 8) {
     channel_size = sizeof(uint16_t);
   }
+#endif
 
-  // TODO: foreach block of 4*channel_size bytes in the input array copy the first 3*channel_size bytes into the output array
-  size_t plane_size = width*height*3*channel_size;
-  size_t in_size    = width*height*4*channel_size;
-  size_t i, j;
+  for (size_t y = 0; y < height; y++) {
+      const uint8_t *in_data = (uint8_t *)in + (size_t)4 * y * width;
 
-  for (i = 0, j = 0; i < plane_size && j < in_size; i += channel_size * 3, j += channel_size * 4) {
-    memcpy(plane_data+i, in_data+j, channel_size * 3);
+      for (size_t x = 0; x < width; x++) {
+          for (size_t k; k < 3; k++) {
+              plane_data[3 * x + k] = in_data[4 * x + k];
+          }
+      }
   }
 
   // get the default encoder

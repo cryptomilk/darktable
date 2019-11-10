@@ -104,11 +104,10 @@ int write_image(struct dt_imageio_module_data_t *data, const char *filename, con
 
   size_t channel_size = sizeof(uint8_t);
   if (p->bpp > 8) {
-    channel_size = 16;
+    channel_size = sizeof(uint16_t);
   }
 
   // TODO: foreach block of 4*channel_size bytes in the input array copy the first 3*channel_size bytes into the output array
-
   size_t plane_size = width*height*3*channel_size;
   size_t in_size    = width*height*4*channel_size;
   size_t i, j;

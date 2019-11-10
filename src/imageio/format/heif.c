@@ -102,18 +102,12 @@ int write_image(struct dt_imageio_module_data_t *data, const char *filename, con
                         width, height, has_alpha ? 32 : 24);
   plane_data = heif_image_get_plane (image, heif_channel_interleaved, &stride);
 
-  /* TODO:
-  uint8_t** row_pointers = in_data;
-  for (uint32_t y = 0; y < height; y++) {
-    if (has_alpha) {
-      memcpy(plane_data + y*stride, row_pointers[y], width*4);
-    }
-    else {
-      memcpy(plane_data + y*stride, row_pointers[y], width*3);
-    }
+  size_t channel_size = sizeof(uint8_t)
+  if (p->bpp > 8)
+    channel_size = 16
   }
-  */
 
+  // TODO: foreach block of 4*channel_size bytes in the input array copy the first 3*channel_size bytes into the output array
   // get the default encoder
   err = heif_context_get_encoder_for_format(context, heif_compression_HEVC, &encoder);
 
@@ -187,7 +181,7 @@ int levels(struct dt_imageio_module_data_t *data)
 
 const char *mime(dt_imageio_module_data_t *data)
 {
-  return "image/heif";
+  return "image/heic";
 }
 
 const char *extension(dt_imageio_module_data_t *data)

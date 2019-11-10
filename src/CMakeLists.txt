@@ -333,6 +333,13 @@ if (USE_AVIF)
     endif()
 endif()
 
+if (USE_HEIF)
+    find_package(libheif 1.6.1 CONFIG)
+    if (TARGET heif)
+        list(APPEND LIBS heif)
+    endif()
+endif()
+
 if(USE_LENSFUN)
   find_package(LensFun)
   if(LensFun_FOUND)

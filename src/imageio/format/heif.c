@@ -84,21 +84,22 @@ int write_image(struct dt_imageio_module_data_t *data, const char *filename, con
   struct heif_error         err;
 
   gint                      stride = 0;
-  guint8                   *plane_data;
   gboolean                  has_alpha = 0;
 
   const uint32_t width = p->global.width, height = p->global.height;
+  const size_t ch = has_alpha ? 4 : 3;
+
 
   err = heif_image_create (width, height,
                            heif_colorspace_RGB,
                            has_alpha ?
-                           heif_chroma_interleaved_RGBA :
-                           heif_chroma_interleaved_RGB,
+                             heif_chroma_interleaved_RGBA :
+                             heif_chroma_interleaved_RGB,
                            &image);
 
   heif_image_add_plane (image, heif_channel_interleaved,
-                        width, height, has_alpha ? 32 : 24);
-  plane_data = heif_image_get_plane (image, heif_channel_interleaved, &stride);
+                        width, height, ch * p->bpp);
+
 
 #if 0
   size_t channel_size = sizeof(uint8_t);
@@ -107,14 +108,44 @@ int write_image(struct dt_imageio_module_data_t *data, const char *filename, con
   }
 #endif
 
-  for (size_t y = 0; y < height; y++) {
-      const uint8_t *in_data = (uint8_t *)in + (size_t)4 * y * width;
+  switch(p->bpp)
+  {
+    case 8:
+    {
+      const uint8_t *const restrict in_data = (const uint8_t *)in;
+      uint8_t *const restrict plane_data = heif_image_get_plane (image, heif_channel_interleaved, &stride);
 
-      for (size_t x = 0; x < width; x++) {
-          for (size_t k; k < 3; k++) {
-              plane_data[3 * x + k] = in_data[4 * x + k];
-          }
-      }
+#ifdef _OPENMP
+#pragma omp parallel for simd default(none) \
+  dt_omp_firstprivate(in_data, plane_data, width, height, ch) \
+  schedule(simd:static) \
+  collapse(3)
+#endif
+        for(size_t i = 0; i < height; i++)
+          for(size_t j = 0; j < width; ++j)
+           for(size_t c = 0; c < 3; ++c)
+              plane_data[(i * width + j) * ch + c] = in_data[(i * width + j) * 4 + c];
+    }
+
+    case 16:
+    {
+      // Does not work BTW
+      const uint16_t *const restrict in_data = (const uint16_t *)in;
+      // So the plane has to be 8 bits uint, then what's the point of allowing higher bitdepths in encoder ?
+      uint8_t *const restrict plane_data = heif_image_get_plane (image, heif_channel_interleaved, &stride);
+
+#ifdef _OPENMP
+#pragma omp parallel for simd default(none) \
+  dt_omp_firstprivate(in_data, plane_data, width, height, ch) \
+  schedule(simd:static) \
+  collapse(3)
+#endif
+        for(size_t i = 0; i < height; i++)
+          for(size_t j = 0; j < width; ++j)
+           for(size_t c = 0; c < 3; ++c)
+              plane_data[(i * width + j) * ch + c] = in_data[(i * width + j) * 4 + c];
+    }
+
   }
 
   // get the default encoder
@@ -140,7 +171,7 @@ int write_image(struct dt_imageio_module_data_t *data, const char *filename, con
 
   heif_image_handle_release (handle);
   heif_encoder_release(encoder);
-	return 0;
+  return 0;
 }
 
 

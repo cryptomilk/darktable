@@ -39,6 +39,9 @@
 #ifdef HAVE_LIBAVIF
 #include "common/imageio_avif.h"
 #endif
+#ifdef HAVE_LIBHEIF
+#include "common/imageio_heif.h"
+#endif
 #include "develop/imageop_math.h"
 #include "iop/iop_api.h"
 
@@ -1913,6 +1916,24 @@ void reload_defaults(dt_iop_module_t *module)
       };
 
       img->profile_size = dt_imageio_avif_read_color_profile(filename, &cp);
+      if (cp.type != DT_COLORSPACE_NONE) {
+        color_profile = cp.type;
+      } else {
+        img->profile_size = cp.icc_profile_size;
+        img->profile      = cp.icc_profile;
+
+        use_eprofile = (img->profile_size > 0);
+      }
+    }
+#endif
+#ifdef HAVE_LIBHEIF
+    else if(!strcmp(ext, "heif") || !strcmp(ext, "heic"))
+    {
+      struct heif_color_profile cp = {
+          .type = DT_COLORSPACE_NONE,
+      };
+
+      img->profile_size = dt_imageio_heif_read_color_profile(filename, &cp);
       if (cp.type != DT_COLORSPACE_NONE) {
         color_profile = cp.type;
       } else {

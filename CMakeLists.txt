@@ -43,6 +43,12 @@ include(DefineOptions.cmake)
 
 include(GNUInstallDirs)
 
+set(DARKTABLE_BINDIR    "${CMAKE_INSTALL_FULL_BINDIR}")
+set(DARKTABLE_DATADIR   "${CMAKE_INSTALL_FULL_DATADIR}/darktable")
+set(DARKTABLE_LIBDIR    "${CMAKE_INSTALL_FULL_LIBDIR}/darktable/")
+set(DARKTABLE_LOCALEDIR "${DARKTABLE_DATADIR}/locale")
+set(DARKTABLE_SHAREDIR  "${CMAKE_INSTALL_FULL_DATADIR}")
+
 # Whether to use relative paths for the build RPATH
 if (APPLE)
     set(CMAKE_MACOSX_RPATH ON)

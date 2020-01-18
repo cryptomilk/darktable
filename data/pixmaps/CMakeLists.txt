@@ -15,11 +15,11 @@ endforeach(pixmap_size)
 # Install plugin pixmaps
 #
 FILE(GLOB DARKROOM_PLUGIN_PIXMAPS "plugins/darkroom/*.png" "plugins/darkroom/*.svg")
-install(FILES ${DARKROOM_PLUGIN_PIXMAPS} DESTINATION ${DARKTABLE_DATADIR}/darktable/pixmaps/plugins/darkroom COMPONENT DTApplication)
+install(FILES ${DARKROOM_PLUGIN_PIXMAPS} DESTINATION ${DARKTABLE_DATADIR}/pixmaps/plugins/darkroom COMPONENT DTApplication)
 # Need to copy to have themes, icons, etc all in one path like after installing
-file(COPY ${DARKROOM_PLUGIN_PIXMAPS} DESTINATION ${DARKTABLE_DATADIR}/darktable/pixmaps/plugins/darkroom)
+file(COPY ${DARKROOM_PLUGIN_PIXMAPS} DESTINATION ${DARKTABLE_DATADIR}/pixmaps/plugins/darkroom)
 
 FILE(GLOB OTHER_PIXMAPS "*.png" "*.svg")
-install(FILES ${OTHER_PIXMAPS} DESTINATION ${DARKTABLE_DATADIR}/darktable/pixmaps COMPONENT DTApplication)
+install(FILES ${OTHER_PIXMAPS} DESTINATION ${DARKTABLE_DATADIR}/pixmaps COMPONENT DTApplication)
 # Need to copy to have themes, icons, etc all in one path like after installing
-file(COPY ${OTHER_PIXMAPS} DESTINATION ${DARKTABLE_DATADIR}/darktable/pixmaps)
+file(COPY ${OTHER_PIXMAPS} DESTINATION ${DARKTABLE_DATADIR}/pixmaps)

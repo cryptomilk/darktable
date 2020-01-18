@@ -74,9 +74,9 @@ int dt_lua_init_early_view(lua_State *L)
 
   dt_lua_module_new(L, "view"); // special case : will be attached to dt.gui in lua/gui.c:dt_lua_init_gui
 
-
   return 0;
 }
+
 int dt_lua_init_view(lua_State *L)
 {
   lua_pushcfunction(L, dt_lua_event_multiinstance_register);

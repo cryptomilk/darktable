@@ -49,6 +49,15 @@ set(DARKTABLE_LIBDIR    "${CMAKE_INSTALL_FULL_LIBDIR}/darktable/")
 set(DARKTABLE_LOCALEDIR "${DARKTABLE_DATADIR}/locale")
 set(DARKTABLE_SHAREDIR  "${CMAKE_INSTALL_FULL_DATADIR}")
 
+macro(print_all_variables)
+    message(STATUS "print_all_variables------------------------------------------{")
+    get_cmake_property(_variableNames VARIABLES)
+    foreach (_variableName ${_variableNames})
+        message(STATUS "${_variableName}=${${_variableName}}")
+    endforeach()
+    message(STATUS "print_all_variables------------------------------------------}")
+endmacro()
+
 # Whether to use relative paths for the build RPATH
 if (APPLE)
     set(CMAKE_MACOSX_RPATH ON)

@@ -147,18 +147,19 @@ if(USE_XMLLINT)
   )
 endif(USE_XMLLINT)
 
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../share/darktable)
 if(NOT ${Xsltproc_BIN} STREQUAL "Xsltproc_BIN-NOTFOUND")
   add_custom_command(
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../tools/generate_darktablerc.xsl ${CMAKE_CURRENT_BINARY_DIR}/darktableconfig.dtd ${CMAKE_CURRENT_BINARY_DIR}/darktableconfig.xml
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/darktablerc
-    COMMAND ${Xsltproc_BIN} --nonet ${CMAKE_CURRENT_SOURCE_DIR}/../tools/generate_darktablerc.xsl ${CMAKE_CURRENT_BINARY_DIR}/darktableconfig.xml > ${CMAKE_CURRENT_BINARY_DIR}/darktablerc
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../share/darktable/darktablerc
+    COMMAND ${Xsltproc_BIN} --nonet ${CMAKE_CURRENT_SOURCE_DIR}/../tools/generate_darktablerc.xsl ${CMAKE_CURRENT_BINARY_DIR}/darktableconfig.xml > ${CMAKE_CURRENT_BINARY_DIR}/../share/darktable/darktablerc
   )
 else(NOT ${Xsltproc_BIN} STREQUAL "Xsltproc_BIN-NOTFOUND")
   if(NOT ${Saxon_BIN} STREQUAL "Saxon_BIN-NOTFOUND")
     add_custom_command(
       DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../tools/generate_darktablerc.xsl ${CMAKE_CURRENT_BINARY_DIR}/darktableconfig.dtd ${CMAKE_CURRENT_BINARY_DIR}/darktableconfig.xml
-      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/darktablerc
-      COMMAND ${Saxon_BIN} ${CMAKE_CURRENT_BINARY_DIR}/darktableconfig.xml ${CMAKE_CURRENT_SOURCE_DIR}/../tools/generate_darktablerc.xsl > ${CMAKE_CURRENT_BINARY_DIR}/darktablerc
+      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../share/darktable/darktablerc
+      COMMAND ${Saxon_BIN} ${CMAKE_CURRENT_BINARY_DIR}/darktableconfig.xml ${CMAKE_CURRENT_SOURCE_DIR}/../tools/generate_darktablerc.xsl > ${CMAKE_CURRENT_BINARY_DIR}/../share/darktable/darktablerc
     )
   else(NOT ${Saxon_BIN} STREQUAL "Saxon_BIN-NOTFOUND")
     message(FATAL_ERROR "Don't know how to generate darktablerc")
@@ -167,7 +168,7 @@ endif(NOT ${Xsltproc_BIN} STREQUAL "Xsltproc_BIN-NOTFOUND")
 
 add_custom_target(
   darktablerc_file ALL
-  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../tools/generate_darktablerc.xsl ${CMAKE_CURRENT_BINARY_DIR}/darktableconfig.dtd ${CMAKE_CURRENT_BINARY_DIR}/darktableconfig.xml ${CMAKE_CURRENT_BINARY_DIR}/darktablerc
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../tools/generate_darktablerc.xsl ${CMAKE_CURRENT_BINARY_DIR}/darktableconfig.dtd ${CMAKE_CURRENT_BINARY_DIR}/darktableconfig.xml ${CMAKE_CURRENT_BINARY_DIR}/../share/darktable/darktablerc
 )
 if(USE_XMLLINT)
   add_dependencies(darktablerc_file validate_darktableconfig_xml)
@@ -176,7 +177,7 @@ endif(USE_XMLLINT)
 # first of all install darktablerc file into share as template
 # postinst script should copy this into users homedirectory
 # $HOME/.config/darktable/darktable.rc
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/darktablerc DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/darktable COMPONENT DTApplication)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../share/darktable/darktablerc DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/darktable COMPONENT DTApplication)
 
 #
 # Install bash completion file. users/packagers can symlink that to /etc/bash_completion.d/

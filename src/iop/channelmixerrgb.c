@@ -1794,10 +1794,6 @@ void commit_params(struct dt_iop_module_t *self, dt_iop_params_t *p1, dt_dev_pix
   get_white_balance_coeff(self, custom_wb);
   illuminant_to_xy(p->illuminant, &(self->dev->image_storage), custom_wb, &x, &y, p->temperature, p->illum_fluo, p->illum_led);
 
-  // if illuminant is set as camera, x and y are set on-the-fly at commit time, so we need to set adaptation too
-  if(p->illuminant == DT_ILLUMINANT_CAMERA)
-    check_if_close_to_daylight(x, y, NULL, NULL, &(d->adaptation));
-
   d->illuminant_type = p->illuminant;
 
   // Convert illuminant from xyY to XYZ
